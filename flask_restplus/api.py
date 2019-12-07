@@ -97,6 +97,7 @@ class Api(object):
             tags=None, prefix='', ordered=False,
             default_mediatype='application/json', decorators=None,
             catch_all_404s=False, serve_challenge_on_401=False, format_checker=None,
+            error_logger=None,
             **kwargs):
         self.version = version
         self.title = title or 'API'
@@ -146,6 +147,7 @@ class Api(object):
         self.resources = []
         self.app = None
         self.blueprint = None
+        self.error_logger = error_logger
 
         if app is not None:
             self.app = app
@@ -576,6 +578,9 @@ class Api(object):
         :param function original_handler: the original Flask error handler for the app
         :param Exception e: the exception raised while handling the request
         '''
+
+        self.error_logger.exception(str(e))
+
         if self._has_fr_route():
             try:
                 return self.handle_error(e)
